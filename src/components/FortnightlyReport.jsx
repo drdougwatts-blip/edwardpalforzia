@@ -1,13 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useDoses } from '../hooks/useDoses';
 import { useClinicVisits } from '../hooks/useClinicVisits';
-import { useAuth } from '../hooks/useAuth';
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, isWithinInterval } from 'date-fns';
 
 export default function FortnightlyReport() {
   const { doses } = useDoses();
   const { visits, latestVisit } = useClinicVisits();
-  const { role } = useAuth();
 
   const today = new Date();
   const [endDate, setEndDate] = useState(format(today, 'yyyy-MM-dd'));
@@ -67,14 +65,12 @@ export default function FortnightlyReport() {
     <div className="page-container">
       <h2>Fortnightly Report</h2>
 
-      {role === 'doctor' && (
-        <div className="filter-bar">
-          <label>From:</label>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-          <label>To:</label>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-        </div>
-      )}
+      <div className="filter-bar">
+        <label>From:</label>
+        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+        <label>To:</label>
+        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+      </div>
 
       <div className="report" id="fortnightly-report">
         <div className="report-header">

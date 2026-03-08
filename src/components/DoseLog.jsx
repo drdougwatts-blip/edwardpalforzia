@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useDoses } from '../hooks/useDoses';
-import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 
 const SEVERITY_COLORS = {
@@ -12,7 +11,6 @@ const SEVERITY_COLORS = {
 
 export default function DoseLog() {
   const { doses, loading, removeDose, fetchDosesByRange, fetchDoses } = useDoses();
-  const { role } = useAuth();
   const [filters, setFilters] = useState({ startDate: '', endDate: '', givenBy: '', severity: '' });
   const [expandedId, setExpandedId] = useState(null);
 
@@ -92,14 +90,12 @@ export default function DoseLog() {
                     {dose.antihistamineGiven && dose.antihistamineDetails && (
                       <p><strong>Antihistamine:</strong> {dose.antihistamineDetails}</p>
                     )}
-                    {role === 'parent' && (
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={(e) => { e.stopPropagation(); removeDose(dose.id); }}
-                      >
-                        Delete
-                      </button>
-                    )}
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={(e) => { e.stopPropagation(); removeDose(dose.id); }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 )}
               </div>

@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useAppointments } from '../hooks/useAppointments';
-import { useAuth } from '../hooks/useAuth';
 import { format, differenceInDays, isFuture, isPast } from 'date-fns';
 
 export default function AppointmentCalendar() {
   const { appointments, loading, createAppointment, editAppointment, removeAppointment } = useAppointments();
-  const { role } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
@@ -69,15 +67,13 @@ export default function AppointmentCalendar() {
         </div>
       )}
 
-      {role === 'parent' && (
-        <div className="mb-3">
-          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Cancel' : 'Add Appointment'}
-          </button>
-        </div>
-      )}
+      <div className="mb-3">
+        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Cancel' : 'Add Appointment'}
+        </button>
+      </div>
 
-      {showForm && role === 'parent' && (
+      {showForm && (
         <form onSubmit={handleSubmit} className="form appointment-form">
           <div className="form-row">
             <div className="form-group">
@@ -118,12 +114,10 @@ export default function AppointmentCalendar() {
               </div>
               <p className="appointment-location">{appt.location}</p>
               {appt.notes && <p className="appointment-notes">{appt.notes}</p>}
-              {role === 'parent' && (
-                <div className="appointment-actions">
-                  <button className="btn btn-sm" onClick={() => startEdit(appt)}>Edit</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => removeAppointment(appt.id)}>Delete</button>
-                </div>
-              )}
+              <div className="appointment-actions">
+                <button className="btn btn-sm" onClick={() => startEdit(appt)}>Edit</button>
+                <button className="btn btn-sm btn-danger" onClick={() => removeAppointment(appt.id)}>Delete</button>
+              </div>
             </div>
           );
         })}
