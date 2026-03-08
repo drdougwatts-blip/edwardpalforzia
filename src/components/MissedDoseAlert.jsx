@@ -11,11 +11,16 @@ export default function MissedDoseAlert({ doses, latestVisit }) {
       : startOfDay(new Date(latestVisit.date));
 
     // Check last 14 days or since treatment start, whichever is more recent
+    // Exclude today — the dose hasn't been missed if the day isn't over yet
+    const yesterday = subDays(today, 1);
     const rangeStart = isAfter(treatmentStart, subDays(today, 13))
       ? treatmentStart
       : subDays(today, 13);
 
-    const days = eachDayOfInterval({ start: rangeStart, end: today });
+    // If treatment started today, there are no past days to check yet
+    if (isAfter(rangeStart, yesterday)) return null;
+
+    const days = eachDayOfInterval({ start: rangeStart, end: yesterday });
 
     const doseDates = new Set(
       doses.map(d => {

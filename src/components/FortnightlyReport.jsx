@@ -42,7 +42,12 @@ export default function FortnightlyReport() {
       const date = d.date?.toDate ? d.date.toDate() : new Date(d.date);
       return format(startOfDay(date), 'yyyy-MM-dd');
     }));
-    const missedDays = days.filter(day => !doseDates.has(format(day, 'yyyy-MM-dd')));
+    const todayStr = format(startOfDay(new Date()), 'yyyy-MM-dd');
+    const missedDays = days.filter(day => {
+      const dayStr = format(day, 'yyyy-MM-dd');
+      // Don't count today as missed — the dose just hasn't been taken yet
+      return dayStr !== todayStr && !doseDates.has(dayStr);
+    });
 
     return {
       startDate: start,

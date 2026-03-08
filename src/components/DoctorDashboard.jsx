@@ -33,7 +33,12 @@ export default function DoctorDashboard() {
       return format(startOfDay(date), 'yyyy-MM-dd');
     }));
 
-    const missedDays = days.filter(day => !doseDates.has(format(day, 'yyyy-MM-dd')));
+    const todayStr = format(startOfDay(today), 'yyyy-MM-dd');
+    const missedDays = days.filter(day => {
+      const dayStr = format(day, 'yyyy-MM-dd');
+      // Don't count today as missed — the dose just hasn't been taken yet
+      return dayStr !== todayStr && !doseDates.has(dayStr);
+    });
     const reactions = recentDoses.filter(d => d.reactionSeverity !== 'none');
     const antihistamineCount = recentDoses.filter(d => d.antihistamineGiven).length;
     const adherence = days.length > 0 ? Math.round((recentDoses.length / days.length) * 100) : 0;
