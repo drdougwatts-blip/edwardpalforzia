@@ -42,11 +42,15 @@ export default function FortnightlyReport() {
       const date = d.date?.toDate ? d.date.toDate() : new Date(d.date);
       return format(startOfDay(date), 'yyyy-MM-dd');
     }));
+    // Exclude today (not over yet) and clinic visit days (dose given at clinic)
     const todayStr = format(startOfDay(new Date()), 'yyyy-MM-dd');
+    const visitDates = new Set(visits.map(v => {
+      const date = v.date?.toDate ? v.date.toDate() : new Date(v.date);
+      return format(startOfDay(date), 'yyyy-MM-dd');
+    }));
     const missedDays = days.filter(day => {
       const dayStr = format(day, 'yyyy-MM-dd');
-      // Don't count today as missed — the dose just hasn't been taken yet
-      return dayStr !== todayStr && !doseDates.has(dayStr);
+      return dayStr !== todayStr && !visitDates.has(dayStr) && !doseDates.has(dayStr);
     });
 
     return {

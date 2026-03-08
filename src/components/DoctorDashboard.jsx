@@ -33,11 +33,14 @@ export default function DoctorDashboard() {
       return format(startOfDay(date), 'yyyy-MM-dd');
     }));
 
+    // Exclude today (not over yet) and clinic visit day (dose given at clinic)
     const todayStr = format(startOfDay(today), 'yyyy-MM-dd');
+    const visitDateStr = latestVisit?.date
+      ? format(startOfDay(latestVisit.date?.toDate ? latestVisit.date.toDate() : new Date(latestVisit.date)), 'yyyy-MM-dd')
+      : null;
     const missedDays = days.filter(day => {
       const dayStr = format(day, 'yyyy-MM-dd');
-      // Don't count today as missed — the dose just hasn't been taken yet
-      return dayStr !== todayStr && !doseDates.has(dayStr);
+      return dayStr !== todayStr && dayStr !== visitDateStr && !doseDates.has(dayStr);
     });
     const reactions = recentDoses.filter(d => d.reactionSeverity !== 'none');
     const antihistamineCount = recentDoses.filter(d => d.antihistamineGiven).length;

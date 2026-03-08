@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format, eachDayOfInterval, startOfDay, subDays, isAfter } from 'date-fns';
+import { format, eachDayOfInterval, startOfDay, subDays, addDays, isAfter } from 'date-fns';
 
 export default function MissedDoseAlert({ doses, latestVisit }) {
   const missedInfo = useMemo(() => {
@@ -10,14 +10,17 @@ export default function MissedDoseAlert({ doses, latestVisit }) {
       ? startOfDay(latestVisit.date.toDate())
       : startOfDay(new Date(latestVisit.date));
 
-    // Check last 14 days or since treatment start, whichever is more recent
+    // Home dosing starts the day after the clinic visit
+    const homeDoseStart = addDays(treatmentStart, 1);
+
+    // Check last 14 days or since home dosing started, whichever is more recent
     // Exclude today — the dose hasn't been missed if the day isn't over yet
     const yesterday = subDays(today, 1);
-    const rangeStart = isAfter(treatmentStart, subDays(today, 13))
-      ? treatmentStart
+    const rangeStart = isAfter(homeDoseStart, subDays(today, 13))
+      ? homeDoseStart
       : subDays(today, 13);
 
-    // If treatment started today, there are no past days to check yet
+    // If home dosing hasn't started yet (visit was today or yesterday with no past days), skip
     if (isAfter(rangeStart, yesterday)) return null;
 
     const days = eachDayOfInterval({ start: rangeStart, end: yesterday });
