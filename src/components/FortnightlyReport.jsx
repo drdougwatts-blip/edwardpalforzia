@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useDoses } from '../hooks/useDoses';
 import { useClinicVisits } from '../hooks/useClinicVisits';
-import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, isWithinInterval } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, isWithinInterval, isBefore } from 'date-fns';
 
 export default function FortnightlyReport() {
   const { doses } = useDoses();
@@ -16,7 +16,6 @@ export default function FortnightlyReport() {
     const end = endOfDay(new Date(endDate));
     const interval = { start, end };
     const days = eachDayOfInterval({ start, end: startOfDay(new Date(endDate)) });
-    const expectedDoses = days.length;
 
     const periodDoses = doses.filter(d => {
       const date = d.date?.toDate ? d.date.toDate() : new Date(d.date);
@@ -24,6 +23,17 @@ export default function FortnightlyReport() {
     });
 
     const totalLogged = periodDoses.length;
+
+    // Only count past days (not today or future) and exclude clinic visit days for adherence
+    const todayStart = startOfDay(new Date());
+    const visitDatesForAdherence = new Set(visits.map(v => {
+      const date = v.date?.toDate ? v.date.toDate() : new Date(v.date);
+      return format(startOfDay(date), 'yyyy-MM-dd');
+    }));
+    const eligibleDays = days.filter(day =>
+      isBefore(day, todayStart) && !visitDatesForAdherence.has(format(day, 'yyyy-MM-dd'))
+    );
+    const expectedDoses = eligibleDays.length;
     const adherence = expectedDoses > 0 ? Math.round((totalLogged / expectedDoses) * 100) : 0;
 
     const annaCount = periodDoses.filter(d => d.givenBy === 'Anna').length;
@@ -43,14 +53,9 @@ export default function FortnightlyReport() {
       return format(startOfDay(date), 'yyyy-MM-dd');
     }));
     // Exclude today (not over yet) and clinic visit days (dose given at clinic)
-    const todayStr = format(startOfDay(new Date()), 'yyyy-MM-dd');
-    const visitDates = new Set(visits.map(v => {
-      const date = v.date?.toDate ? v.date.toDate() : new Date(v.date);
-      return format(startOfDay(date), 'yyyy-MM-dd');
-    }));
     const missedDays = days.filter(day => {
       const dayStr = format(day, 'yyyy-MM-dd');
-      return dayStr !== todayStr && !visitDates.has(dayStr) && !doseDates.has(dayStr);
+      return isBefore(day, todayStart) && !visitDatesForAdherence.has(dayStr) && !doseDates.has(dayStr);
     });
 
     return {
