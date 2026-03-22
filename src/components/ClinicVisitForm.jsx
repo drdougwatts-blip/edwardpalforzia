@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useClinicVisits } from '../hooks/useClinicVisits';
 import { format } from 'date-fns';
 
-const DOSE_LEVELS = [0.5, 1, 1.5, 3, 6, 12, 20, 40, 80, 120, 160, 200, 240, 300];
+const DOSE_LEVELS = [0.5, 1, 1.5, 2, 3, 6, 12, 20, 40, 80, 120, 160, 200, 240, 300];
 
 export default function ClinicVisitForm() {
   const navigate = useNavigate();
